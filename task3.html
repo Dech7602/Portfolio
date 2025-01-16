@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>To-Do List</h1>
+    <input type="text" id="taskInput" placeholder="Enter a task">
+    <button onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+
+    <script>
+        const taskList = document.getElementById('taskList');
+        const taskInput = document.getElementById('taskInput');
+
+        // Load tasks from localStorage
+        window.onload = () => {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(task => renderTask(task.text, task.completed));
+        };
+
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            if (!taskText) {
+                alert('Please enter a task');
+                return;
+            }
+            renderTask(taskText, false);
+            saveTasks();
+            taskInput.value = '';
+        }
+
+        function renderTask(text, completed) {
+            const li = document.createElement('li');
+
+            const span = document.createElement('span');
+            span.textContent = text;
+            if (completed) {
+                span.classList.add('completed');
+            }
+
+            span.addEventListener('click', () => {
+                span.classList.toggle('completed');
+                saveTasks();
+            });
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.onclick = () => {
+                li.remove();
+                saveTasks();
+            };
+
+            li.appendChild(span);
+            li.appendChild(deleteButton);
+            taskList.appendChild(li);
+        }
+
+        function saveTasks() {
+            const tasks = [];
+            taskList.querySelectorAll('li').forEach(li => {
+                const text = li.querySelector('span').textContent;
+                const completed = li.querySelector('span').classList.contains('completed');
+                tasks.push({ text, completed });
+            });
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+    </script>
+</body>
+</html>
